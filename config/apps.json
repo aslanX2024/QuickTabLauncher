@@ -1,0 +1,22 @@
+[
+  {
+    "name": "Notepad",
+    "path": "%WINDIR%\\notepad.exe",
+    "group": "System"
+  },
+  {
+    "name": "Calculator",
+    "path": "calc.exe",
+    "group": "System"
+  },
+  {
+    "name": "ChatGPT",
+    "path": "https://chatgpt.com",
+    "group": "Web"
+  },
+  {
+    "name": "Visual Studio Code",
+    "path": "%LOCALAPPDATA%\\Programs\\Microsoft VS Code\\Code.exe",
+    "group": "Work"
+  }
+]
