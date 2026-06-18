@@ -98,6 +98,8 @@ Put your own `.png`, `.jpg`, `.bmp`, or `.ico` files in an `Icons` folder next t
 
 `Icons` is ignored by git by default, so personal or machine-specific icon artwork stays local unless you intentionally change that.
 
+If an image was downloaded as AVIF or WebP, convert it to a real PNG/JPG first. Renaming the file extension to `.png` is not enough.
+
 ## Shortcuts Folder
 
 Place `.lnk`, `.url`, `.exe`, `.bat`, or `.cmd` entries in `Shortcuts`.

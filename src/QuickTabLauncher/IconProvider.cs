@@ -25,8 +25,15 @@ public static class IconProvider
 
         if (IsImageFile(expandedPath) && File.Exists(expandedPath))
         {
-            using var image = Image.FromFile(expandedPath);
-            return new Bitmap(image);
+            try
+            {
+                using var image = Image.FromFile(expandedPath);
+                return new Bitmap(image);
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         var flags = ShgfiIcon | ShgfiLargeIcon;
