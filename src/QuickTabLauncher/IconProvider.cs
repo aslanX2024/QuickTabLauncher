@@ -1,4 +1,5 @@
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Runtime.InteropServices;
 
 namespace QuickTabLauncher;
@@ -26,6 +27,12 @@ public static class IconProvider
             {
                 return bitmap;
             }
+        }
+
+        bitmap = GetFolderBitmap(item);
+        if (bitmap is not null)
+        {
+            return bitmap;
         }
 
         return GetBitmap(item.Path);
@@ -89,6 +96,83 @@ public static class IconProvider
     private static bool IsImageFile(string path)
     {
         return Path.GetExtension(path).ToLowerInvariant() is ".png" or ".jpg" or ".jpeg" or ".bmp" or ".ico";
+    }
+
+    private static Bitmap? GetFolderBitmap(AppItem item)
+    {
+        var path = ResolveFileSystemPath(item.Path);
+        return Directory.Exists(path) ? CreateFolderBitmap(item.Name) : null;
+    }
+
+    private static string ResolveFileSystemPath(string? path)
+    {
+        var expandedPath = ShortcutResolver.ResolveIconPath(Expand(path));
+        if (string.IsNullOrWhiteSpace(expandedPath) ||
+            expandedPath.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
+            expandedPath.StartsWith("https://", StringComparison.OrdinalIgnoreCase) ||
+            expandedPath.StartsWith("shell:", StringComparison.OrdinalIgnoreCase))
+        {
+            return "";
+        }
+
+        return Path.IsPathRooted(expandedPath)
+            ? expandedPath
+            : Path.Combine(AppPaths.BaseDirectory, expandedPath);
+    }
+
+    private static Bitmap CreateFolderBitmap(string seed)
+    {
+        var color = ColorFor(seed);
+        var darker = Blend(color, Color.Black, 0.22f);
+        var lighter = Blend(color, Color.White, 0.28f);
+        var bitmap = new Bitmap(64, 64);
+
+        using var graphics = Graphics.FromImage(bitmap);
+        graphics.SmoothingMode = SmoothingMode.AntiAlias;
+        graphics.Clear(Color.Transparent);
+
+        using var shadow = new SolidBrush(Color.FromArgb(55, 0, 0, 0));
+        graphics.FillEllipse(shadow, new Rectangle(10, 48, 45, 7));
+
+        using var tabBrush = new SolidBrush(lighter);
+        graphics.FillRoundedRectangle(tabBrush, new Rectangle(10, 14, 24, 14), 5);
+
+        using var bodyBrush = new LinearGradientBrush(new Rectangle(8, 22, 48, 32), lighter, color, 90f);
+        graphics.FillRoundedRectangle(bodyBrush, new Rectangle(8, 20, 48, 36), 8);
+
+        using var accentBrush = new SolidBrush(Color.FromArgb(150, 255, 255, 255));
+        graphics.FillRoundedRectangle(accentBrush, new Rectangle(15, 29, 34, 5), 3);
+
+        using var border = new Pen(darker, 2f);
+        graphics.DrawRoundedRectangle(border, new Rectangle(8, 20, 48, 36), 8);
+        return bitmap;
+    }
+
+    private static Color ColorFor(string seed)
+    {
+        var palette = new[]
+        {
+            Color.FromArgb(77, 171, 247),
+            Color.FromArgb(81, 207, 102),
+            Color.FromArgb(255, 212, 59),
+            Color.FromArgb(255, 146, 43),
+            Color.FromArgb(240, 101, 149),
+            Color.FromArgb(132, 94, 247),
+            Color.FromArgb(34, 184, 207),
+            Color.FromArgb(148, 216, 45)
+        };
+
+        var hash = NormalizeIconName(seed).Aggregate(17, (current, ch) => current * 31 + ch);
+        return palette[(hash & int.MaxValue) % palette.Length];
+    }
+
+    private static Color Blend(Color color, Color target, float amount)
+    {
+        return Color.FromArgb(
+            color.A,
+            (int)(color.R + (target.R - color.R) * amount),
+            (int)(color.G + (target.G - color.G) * amount),
+            (int)(color.B + (target.B - color.B) * amount));
     }
 
     private static string? FindIconByName(string name)

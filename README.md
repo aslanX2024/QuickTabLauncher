@@ -106,6 +106,8 @@ Icons
 
 Short unique names also work when they match part of the app name, such as `drive.png` for `Google Drive`.
 
+Folder shortcuts get a colored folder icon automatically when no custom icon is found. The color is derived from the folder name, so frequently used folders are easier to tell apart without adding labels.
+
 `Icons` is ignored by git by default, so personal or machine-specific icon artwork stays local unless you intentionally change that.
 
 If an image was downloaded as AVIF or WebP, convert it to a real PNG/JPG first. Renaming the file extension to `.png` is not enough.
