@@ -83,6 +83,21 @@ Optional fields:
 - `arguments`: command-line arguments
 - `icon`: custom icon path
 
+### Custom Icons
+
+Put your own `.png`, `.jpg`, `.bmp`, or `.ico` files in an `Icons` folder next to the app, then point an item to that file:
+
+```json
+{
+  "name": "WhatsApp Web",
+  "path": "https://web.whatsapp.com",
+  "group": "Communication",
+  "icon": "Icons\\whatsapp-web.png"
+}
+```
+
+`Icons` is ignored by git by default, so personal or machine-specific icon artwork stays local unless you intentionally change that.
+
 ## Shortcuts Folder
 
 Place `.lnk`, `.url`, `.exe`, `.bat`, or `.cmd` entries in `Shortcuts`.

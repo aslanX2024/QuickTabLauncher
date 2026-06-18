@@ -650,62 +650,11 @@ internal sealed class AppButton : Control
                 TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
         }
 
-        if (ShouldShowBadge())
-        {
-            DrawBadge(e.Graphics);
-        }
     }
 
     private string Initial()
     {
         return string.IsNullOrWhiteSpace(_item.Name) ? "?" : _item.Name[..1].ToUpperInvariant();
-    }
-
-    private bool ShouldShowBadge()
-    {
-        return IsWhatsAppWeb() || string.IsNullOrWhiteSpace(_item.Icon);
-    }
-
-    private string BadgeText()
-    {
-        if (IsWhatsAppWeb())
-        {
-            return "WEB";
-        }
-
-        if (string.IsNullOrWhiteSpace(_item.Name))
-        {
-            return "?";
-        }
-
-        var words = _item.Name
-            .Split([' ', '-', '_', '.'], StringSplitOptions.RemoveEmptyEntries)
-            .Where(word => word.Any(char.IsLetterOrDigit))
-            .ToArray();
-
-        var text = words.Length >= 2
-            ? new string(words.Take(2).Select(word => word.First(char.IsLetterOrDigit)).ToArray())
-            : new string(_item.Name.Where(char.IsLetterOrDigit).Take(2).ToArray());
-
-        return string.IsNullOrWhiteSpace(text) ? "?" : text.ToUpperInvariant();
-    }
-
-    private void DrawBadge(Graphics graphics)
-    {
-        var text = BadgeText();
-        var badgeWidth = text.Length > 2 ? 27 : 20;
-        var rect = new Rectangle(Width - badgeWidth - 4, Height - 17, badgeWidth, 13);
-        using var back = new SolidBrush(Color.FromArgb(232, 15, 22, 30));
-        using var border = new Pen(Color.FromArgb(120, 125, 227, 196));
-        graphics.FillRoundedRectangle(back, rect, 6);
-        graphics.DrawRoundedRectangle(border, rect, 6);
-        TextRenderer.DrawText(graphics, text, new Font("Segoe UI", 6.7f, FontStyle.Bold),
-            rect, Theme.Text, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
-    }
-
-    private bool IsWhatsAppWeb()
-    {
-        return string.Equals(_item.Name, "WhatsApp Web", StringComparison.OrdinalIgnoreCase);
     }
 }
 
