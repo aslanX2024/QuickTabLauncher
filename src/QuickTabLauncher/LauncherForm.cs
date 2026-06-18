@@ -28,6 +28,7 @@ public sealed class LauncherForm : Form
     private readonly FormsTimer _startupRevealTimer;
     private readonly FileSystemWatcher _shortcutsWatcher;
     private readonly FileSystemWatcher _configWatcher;
+    private readonly FileSystemWatcher _iconsWatcher;
     private readonly ContextMenuStrip _contextMenu;
     private readonly RoundedPanel _surface;
     private readonly EdgeTab _tab;
@@ -234,8 +235,10 @@ public sealed class LauncherForm : Form
             });
         };
 
+        AppPaths.EnsureLayout();
         _shortcutsWatcher = CreateWatcher(AppPaths.ShortcutsDirectory, "*.*", includeSubdirectories: true);
         _configWatcher = CreateWatcher(AppPaths.ConfigDirectory, "apps.json", includeSubdirectories: false);
+        _iconsWatcher = CreateWatcher(AppPaths.IconsDirectory, "*.*", includeSubdirectories: false);
     }
 
     public void ReloadApps()
@@ -254,6 +257,7 @@ public sealed class LauncherForm : Form
             _startupRevealTimer.Dispose();
             _shortcutsWatcher.Dispose();
             _configWatcher.Dispose();
+            _iconsWatcher.Dispose();
             _contextMenu.Dispose();
         }
 
@@ -491,6 +495,7 @@ public sealed class LauncherForm : Form
         menu.Items.Add("Yenile", null, (_, _) => ReloadApps());
         menu.Items.Add("apps.json düzenle", null, (_, _) => OpenPath(AppPaths.AppsJson));
         menu.Items.Add("Shortcuts klasörü", null, (_, _) => OpenPath(AppPaths.ShortcutsDirectory));
+        menu.Items.Add("Icons klasörü", null, (_, _) => OpenPath(AppPaths.IconsDirectory));
         menu.Items.Add("Notları aç", null, (_, _) => OpenPath(AppPaths.NotesInbox));
         menu.Items.Add(new ToolStripSeparator());
 
@@ -584,7 +589,7 @@ internal sealed class AppButton : Control
     public AppButton(AppItem item)
     {
         _item = item;
-        _icon = IconProvider.GetBitmap(item.Icon ?? item.Path);
+        _icon = IconProvider.GetBitmapFor(item);
         Cursor = Cursors.Hand;
         DoubleBuffered = true;
         Font = new Font("Segoe UI", 9.5f, FontStyle.Bold);

@@ -53,6 +53,7 @@ public sealed class TrayController : IDisposable
         menu.Items.Add(new Forms.ToolStripSeparator());
         menu.Items.Add("apps.json düzenle", null, (_, _) => OpenPath(AppPaths.AppsJson));
         menu.Items.Add("Shortcuts klasörü", null, (_, _) => OpenPath(AppPaths.ShortcutsDirectory));
+        menu.Items.Add("Icons klasörü", null, (_, _) => OpenPath(AppPaths.IconsDirectory));
         menu.Items.Add("Notları aç", null, (_, _) => OpenPath(AppPaths.NotesInbox));
 
         var startupItem = new Forms.ToolStripMenuItem("Windows ile başlat")
