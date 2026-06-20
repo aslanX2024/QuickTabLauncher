@@ -22,6 +22,7 @@ public sealed class LauncherForm : Form
     private const int NoteBoxHeight = 34;
 
     private readonly ConfigService _configService = new();
+    private readonly LauncherSettings _settings;
     private readonly FormsTimer _hideTimer;
     private readonly FormsTimer _animationTimer;
     private readonly FormsTimer _refreshTimer;
@@ -39,12 +40,20 @@ public sealed class LauncherForm : Form
     private readonly Button _pinButton;
     private IReadOnlyList<AppItem> _apps = [];
     private int _targetLeft;
+    private int _tabDragStartTop;
+    private Point _tabDragStartPoint;
     private bool _isPinned;
     private bool _isOpen;
     private bool _isContextMenuOpen;
+    private bool _isDraggingTab;
+    private bool _tabWasDragged;
+    private bool _suppressTabClick;
 
     public LauncherForm()
     {
+        AppPaths.EnsureLayout();
+        _settings = SettingsService.Load();
+
         AutoScaleMode = AutoScaleMode.Dpi;
         BackColor = Theme.TransparentKey;
         ClientSize = new Size(PanelWidth + TabWidth, InitialLauncherHeight);
@@ -197,8 +206,17 @@ public sealed class LauncherForm : Form
             Cursor = Cursors.Hand
         };
         _tab.ContextMenuStrip = _contextMenu;
+        _tab.MouseDown += TabOnMouseDown;
+        _tab.MouseMove += TabOnMouseMove;
+        _tab.MouseUp += TabOnMouseUp;
         _tab.MouseClick += (_, e) =>
         {
+            if (_suppressTabClick)
+            {
+                _suppressTabClick = false;
+                return;
+            }
+
             if (e.Button == MouseButtons.Left)
             {
                 if (_isOpen)
@@ -235,7 +253,6 @@ public sealed class LauncherForm : Form
             });
         };
 
-        AppPaths.EnsureLayout();
         _shortcutsWatcher = CreateWatcher(AppPaths.ShortcutsDirectory, "*.*", includeSubdirectories: true);
         _configWatcher = CreateWatcher(AppPaths.ConfigDirectory, "apps.json", includeSubdirectories: false);
         _iconsWatcher = CreateWatcher(AppPaths.IconsDirectory, "*.*", includeSubdirectories: false);
@@ -442,10 +459,66 @@ public sealed class LauncherForm : Form
         }
     }
 
+    private void TabOnMouseDown(object? sender, MouseEventArgs e)
+    {
+        if (e.Button != MouseButtons.Left)
+        {
+            return;
+        }
+
+        _hideTimer.Stop();
+        _isDraggingTab = true;
+        _tabWasDragged = false;
+        _tabDragStartPoint = Cursor.Position;
+        _tabDragStartTop = Top;
+    }
+
+    private void TabOnMouseMove(object? sender, MouseEventArgs e)
+    {
+        if (!_isDraggingTab || e.Button != MouseButtons.Left)
+        {
+            return;
+        }
+
+        var delta = Cursor.Position.Y - _tabDragStartPoint.Y;
+        if (Math.Abs(delta) < 3)
+        {
+            return;
+        }
+
+        _tabWasDragged = true;
+        var workArea = Screen.FromPoint(Cursor.Position).WorkingArea;
+        Top = ClampTop(_tabDragStartTop + delta, workArea);
+    }
+
+    private void TabOnMouseUp(object? sender, MouseEventArgs e)
+    {
+        if (!_isDraggingTab || e.Button != MouseButtons.Left)
+        {
+            return;
+        }
+
+        _isDraggingTab = false;
+        if (_tabWasDragged)
+        {
+            _settings.PanelTop = Top;
+            SettingsService.Save(_settings);
+            _suppressTabClick = true;
+        }
+    }
+
     private void SetInitialPosition()
     {
         var workArea = Screen.PrimaryScreen?.WorkingArea ?? Screen.GetWorkingArea(this);
-        Top = Math.Max(workArea.Top + 24, workArea.Top + (workArea.Height - Height) / 2);
+        var top = _settings.PanelTop ?? workArea.Top + (workArea.Height - Height) / 2;
+        Top = ClampTop(top, workArea);
+    }
+
+    private int ClampTop(int top, Rectangle workArea)
+    {
+        var minTop = workArea.Top + 8;
+        var maxTop = Math.Max(minTop, workArea.Bottom - Height - 8);
+        return Math.Clamp(top, minTop, maxTop);
     }
 
     private void ResizeToContent(int appContentHeight)

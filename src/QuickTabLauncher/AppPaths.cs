@@ -10,6 +10,7 @@ public static class AppPaths
     public static string NotesDirectory => Path.Combine(BaseDirectory, "Notes");
     public static string ShortcutsDirectory => Path.Combine(BaseDirectory, "Shortcuts");
     public static string AppsJson => Path.Combine(ConfigDirectory, "apps.json");
+    public static string SettingsJson => Path.Combine(ConfigDirectory, "settings.json");
     public static string NotesInbox => Path.Combine(NotesDirectory, "Inbox.md");
 
     public static void EnsureLayout()

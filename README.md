@@ -7,6 +7,7 @@ It is meant for people who jump between the same tools all day and want a lightw
 ## Features
 
 - Hover tab on the left edge of the screen
+- Draggable edge tab with remembered vertical position
 - Grouped app and website launcher
 - Automatic shortcut discovery from the `Shortcuts` folder
 - Nested shortcut folders become launcher groups

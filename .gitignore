@@ -5,6 +5,7 @@ obj/
 publish/
 publish-portable/
 tools/dotnet-install.ps1
+config/settings.json
 Notes/
 Icons/
 *.user
