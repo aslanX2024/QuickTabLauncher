@@ -4,6 +4,14 @@ QuickTabLauncher is a small Windows edge launcher. It stays as a thin tab on the
 
 It is meant for people who jump between the same tools all day and want a lightweight launcher without a full dashboard.
 
+## Screenshots
+
+<p>
+  <img src="screenshots/quicktab-panel.png" alt="QuickTab grouped launcher panel" width="260">
+  <img src="screenshots/quicktab-expanded.png" alt="QuickTab expanded panel with custom icons" width="260">
+  <img src="screenshots/edge-tab.png" alt="QuickTab edge tab on the desktop" width="160">
+</p>
+
 ## Features
 
 - Hover tab on the left edge of the screen
